@@ -8,6 +8,7 @@ import Schedule from './pages/Schedule';
 import Contact from './pages/Contact';
 import AdminDashboard from './admin/AdminDashboard';
 import DynamicPage from './pages/DynamicPage';
+import Auth from './pages/Auth';
 
 function App() {
   return (
@@ -22,6 +23,7 @@ function App() {
             <Route path="/contact" element={<Contact />} />
             <Route path="/admin" element={<AdminDashboard />} />
             <Route path="/:pageSlug" element={<DynamicPage />} />
+            <Route path="/auth" element={<Auth />} />
           </Routes>
         </main>
         <Footer />

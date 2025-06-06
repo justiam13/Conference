@@ -32,16 +32,30 @@ exports.getSubmissionById = async (req, res) => {
 
 // Create new submission
 exports.createSubmission = async (req, res) => {
+  console.log('>> createSubmission controller hit');
+  console.log('Req Body:', req.body);
+  console.log('Req File:', req.file);
   try {
-    const submission = new Submission({
+    const submissionData = {
       ...req.body,
-      submittedBy: req.user._id // Assuming user is authenticated
-    });
+      submittedBy: req.user._id
+    };
+    if (req.file) {
+      submissionData.paperFile = req.file.path;
+      console.log('Adding paperFile path:', req.file.path);
+    }
+    console.log('Submission data prepared:', submissionData);
+    const submission = new Submission(submissionData);
+    console.log('Submission instance created');
     
+    console.log('Attempting to save submission...');
     const savedSubmission = await submission.save();
+    console.log('Submission saved successfully:', savedSubmission);
     res.status(201).json(savedSubmission);
   } catch (error) {
-    res.status(400).json({ message: error.message });
+    console.error('Error in createSubmission:', error);
+    // Ensure an error response is sent to the frontend
+    res.status(500).json({ message: error.message || 'Internal Server Error during submission save' });
   }
 };
 

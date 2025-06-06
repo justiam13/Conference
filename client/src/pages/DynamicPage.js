@@ -65,8 +65,8 @@ const DynamicPage = () => {
     const fetchPageContent = async () => {
       try {
         setLoading(true);
-        // Replace with your actual API endpoint
-        const response = await axios.get(`/api/pages/${pageSlug}`);
+        // Fetch from the backend API running on port 5001
+        const response = await axios.get(`http://localhost:5001/api/pages/${pageSlug}`);
         setPageData(response.data);
         setError(null);
       } catch (err) {

@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
-import axios from 'axios';
 
 const CFPContainer = styled.div`
   max-width: 1200px;
@@ -109,53 +108,43 @@ const SubmitButton = styled.button`
 `;
 
 const CFP = () => {
-  const [formData, setFormData] = useState({
+  const [form, setForm] = useState({
     title: '',
-    authors: '',
     abstract: '',
     keywords: '',
     category: '',
-    file: null
   });
+  const [file, setFile] = useState(null);
+  const [error, setError] = useState('');
+  const [success, setSuccess] = useState('');
 
-  const [submitting, setSubmitting] = useState(false);
-  const [submitStatus, setSubmitStatus] = useState(null);
+  const handleChange = e => setForm({ ...form, [e.target.name]: e.target.value });
+  const handleFileChange = e => setFile(e.target.files[0]);
 
-  const handleChange = (e) => {
-    const { name, value, files } = e.target;
-    setFormData(prev => ({
-      ...prev,
-      [name]: files ? files[0] : value
-    }));
-  };
-
-  const handleSubmit = async (e) => {
+  const handleSubmit = async e => {
     e.preventDefault();
-    setSubmitting(true);
-    setSubmitStatus(null);
+    setError('');
+    setSuccess('');
+    const formData = new FormData();
+    Object.entries(form).forEach(([key, value]) => formData.append(key, value));
+    formData.append('paper', file);
 
+    const token = localStorage.getItem('token');
     try {
-      const formDataToSend = new FormData();
-      Object.keys(formData).forEach(key => {
-        formDataToSend.append(key, formData[key]);
+      const res = await fetch('http://localhost:5001/api/submissions', {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+        body: formData,
       });
-
-      // Replace with your actual API endpoint
-      await axios.post('/api/submissions', formDataToSend);
-      setSubmitStatus('success');
-      setFormData({
-        title: '',
-        authors: '',
-        abstract: '',
-        keywords: '',
-        category: '',
-        file: null
-      });
-    } catch (error) {
-      setSubmitStatus('error');
-      console.error('Error submitting paper:', error);
-    } finally {
-      setSubmitting(false);
+      if (!res.ok) {
+        const data = await res.json();
+        throw new Error(data.message || 'Error submitting paper');
+      }
+      setSuccess('Paper submitted successfully!');
+    } catch (err) {
+      setError(err.message);
     }
   };
 
@@ -183,19 +172,7 @@ const CFP = () => {
               type="text"
               id="title"
               name="title"
-              value={formData.title}
-              onChange={handleChange}
-              required
-            />
-          </FormGroup>
-
-          <FormGroup>
-            <Label htmlFor="authors">Authors</Label>
-            <Input
-              type="text"
-              id="authors"
-              name="authors"
-              value={formData.authors}
+              value={form.title}
               onChange={handleChange}
               required
             />
@@ -206,7 +183,7 @@ const CFP = () => {
             <TextArea
               id="abstract"
               name="abstract"
-              value={formData.abstract}
+              value={form.abstract}
               onChange={handleChange}
               required
             />
@@ -218,7 +195,7 @@ const CFP = () => {
               type="text"
               id="keywords"
               name="keywords"
-              value={formData.keywords}
+              value={form.keywords}
               onChange={handleChange}
               required
             />
@@ -230,7 +207,7 @@ const CFP = () => {
               type="text"
               id="category"
               name="category"
-              value={formData.category}
+              value={form.category}
               onChange={handleChange}
               required
             />
@@ -242,22 +219,16 @@ const CFP = () => {
               type="file"
               id="file"
               name="file"
-              accept=".pdf"
-              onChange={handleChange}
+              accept="application/pdf"
+              onChange={handleFileChange}
               required
             />
           </FormGroup>
 
-          <SubmitButton type="submit" disabled={submitting}>
-            {submitting ? 'Submitting...' : 'Submit Paper'}
-          </SubmitButton>
+          <SubmitButton type="submit">Submit Paper</SubmitButton>
 
-          {submitStatus === 'success' && (
-            <p style={{ color: 'green' }}>Paper submitted successfully!</p>
-          )}
-          {submitStatus === 'error' && (
-            <p style={{ color: 'red' }}>Error submitting paper. Please try again.</p>
-          )}
+          {error && <p style={{ color: 'red' }}>{error}</p>}
+          {success && <p style={{ color: 'green' }}>{success}</p>}
         </Form>
       </FormSection>
     </CFPContainer>

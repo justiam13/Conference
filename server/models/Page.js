@@ -3,23 +3,16 @@ const mongoose = require('mongoose');
 const pageSchema = new mongoose.Schema({
   title: {
     type: String,
-    required: true,
-    trim: true
+    required: true
   },
   slug: {
     type: String,
     required: true,
-    unique: true,
-    trim: true,
-    lowercase: true
+    unique: true
   },
   content: {
     type: String,
     required: true
-  },
-  metaDescription: {
-    type: String,
-    trim: true
   },
   isPublished: {
     type: Boolean,

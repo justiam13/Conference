@@ -82,9 +82,11 @@ const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [navItems, setNavItems] = useState([
     { title: 'Home', path: '/' },
+    { title: 'About Us', path: '/about-us' },
     { title: 'CFP', path: '/cfp' },
     { title: 'Schedule', path: '/schedule' },
     { title: 'Contact', path: '/contact' },
+    { title: 'Login', path: '/auth' },
   ]);
 
   const toggleMenu = () => {
